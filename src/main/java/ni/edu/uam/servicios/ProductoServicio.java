@@ -16,8 +16,7 @@ public class ProductoServicio implements ProductoInterface {
 
     @Override
     public void agregarProducto(String nombre, double precio, int cantidad) {
-        this.productos.add(new Producto(nombre, cantidad, precio));
-
+        this.productos.add(new Producto(nombre, precio, cantidad));
     }
 
     @Override

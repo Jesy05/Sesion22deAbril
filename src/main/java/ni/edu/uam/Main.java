@@ -9,14 +9,14 @@ public class Main {
 
     public static void main(String[] args) {
         ProductoServicio servicio = new ProductoServicio();
-        String[] opciones = {"1.Agregar Producto", "2.Ver Factura", "3.Salir"};
+        String[] opciones = {"1.Agregar Producto", "2.Modificar Producto", "3.Eliminar Producto", "4.Ver Factura", "5.Salir"};
         boolean ejecutando = true;
 
         while (ejecutando) {
             int seleccion = JOptionPane.showOptionDialog(
                     null,
-                    "Bienvenido a Pulpería Jaguar\nSeleccione una opción:",
-                    "Pulpería Jaguar",
+                    "Bienvenido a Tiendita Jaguar\nSeleccione una opción:",
+                    "Tiendita Jaguar",
                     JOptionPane.DEFAULT_OPTION,
                     JOptionPane.INFORMATION_MESSAGE,
                     null,
@@ -25,16 +25,24 @@ public class Main {
             );
 
             switch (seleccion) {
-                case 0: // AGREGAR
+                case 0: // agregar
                     agregarNuevoProducto(servicio);
                     break;
+                
+                case 1: // modificar
+                    modificarProductoExistente(servicio);
+                    break;
 
-                case 1: // VER FACTURA
+                case 2: // eliminar
+                    eliminarProductoExistente(servicio);
+                    break;
+
+                case 3: // ver factura
                     mostrarFactura(servicio);
                     break;
 
-                case 2: // SALIR
-                case -1: // Si cierran la ventana con la X
+                case 4: // salir
+                case -1:
                     JOptionPane.showMessageDialog(null, "¡Gracias por visitar Pulpería Jaguar!");
                     ejecutando = false;
                     break;
@@ -47,7 +55,10 @@ public class Main {
         if (nombre == null || nombre.trim().isEmpty()) return;
 
         String precioStr = JOptionPane.showInputDialog("Ingrese el precio de '" + nombre + "':");
+        if (precioStr == null) return;
+        
         String cantidadStr = JOptionPane.showInputDialog("¿Cuántas unidades de '" + nombre + "' desea?");
+        if (cantidadStr == null) return;
 
         try {
             double precio = Double.parseDouble(precioStr);
@@ -56,6 +67,67 @@ public class Main {
             JOptionPane.showMessageDialog(null, "Producto agregado con éxito.");
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(null, "Error: Datos numéricos no válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private static void modificarProductoExistente(ProductoServicio servicio) {
+        if (servicio.getProductos().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No hay productos para modificar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String nombreOriginal = JOptionPane.showInputDialog("Ingrese el nombre del producto que desea modificar:");
+        if (nombreOriginal == null || nombreOriginal.trim().isEmpty()) return;
+
+        boolean existe = false;
+        for (Producto p : servicio.getProductos()) {
+            if (p.getNombre().equalsIgnoreCase(nombreOriginal)) {
+                existe = true;
+                break;
+            }
+        }
+
+        if (!existe) {
+            JOptionPane.showMessageDialog(null, "Producto no encontrado.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String nuevoNombre = JOptionPane.showInputDialog("Ingrese el nuevo nombre del producto:");
+        if (nuevoNombre == null || nuevoNombre.trim().isEmpty()) return;
+
+        String precioStr = JOptionPane.showInputDialog("Ingrese el nuevo precio de '" + nuevoNombre + "':");
+        if (precioStr == null) return;
+        
+        String cantidadStr = JOptionPane.showInputDialog("Ingrese la nueva cantidad de '" + nuevoNombre + "':");
+        if (cantidadStr == null) return;
+
+        try {
+            double nuevoPrecio = Double.parseDouble(precioStr);
+            int nuevaCantidad = Integer.parseInt(cantidadStr);
+            servicio.modificarProducto(nombreOriginal, nuevoNombre, nuevoPrecio, nuevaCantidad);
+            JOptionPane.showMessageDialog(null, "Producto modificado con éxito.");
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Error: Datos numéricos no válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private static void eliminarProductoExistente(ProductoServicio servicio) {
+        if (servicio.getProductos().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No hay productos para eliminar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String nombre = JOptionPane.showInputDialog("Ingrese el nombre del producto que desea eliminar:");
+        if (nombre == null || nombre.trim().isEmpty()) return;
+
+        int sizeAnterior = servicio.getProductos().size();
+        servicio.eliminarProducto(nombre);
+        int sizeActual = servicio.getProductos().size();
+
+        if (sizeAnterior > sizeActual) {
+            JOptionPane.showMessageDialog(null, "Producto eliminado con éxito.");
+        } else {
+            JOptionPane.showMessageDialog(null, "No se encontró ningún producto con ese nombre.", "Aviso", JOptionPane.WARNING_MESSAGE);
         }
     }
 
